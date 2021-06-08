@@ -8,22 +8,22 @@ source("functions/data_manager.R")
 source("functions/localization.R")
 
 ###EDIT THESE VALUES
-infile <- "/Users/edlan/OneDrive/Desktop/data_tools/week1"
+infile <- "/Users/edlan/OneDrive/Desktop/data_tools/calibration raw data"
 outpath <- "/Users/edlan/OneDrive/Desktop/data_tools/output"
 
-#tags <- read.csv("/Users/edlan/OneDrive/Desktop/data_tools/TagID.csv", as.is=TRUE, na.strings=c("NA", "")) #uppercase node letters
+tags <- read.csv("/Users/edlan/OneDrive/Desktop/data_tools/TagID.csv", as.is=TRUE, na.strings=c("NA", "")) #uppercase node letters
 
 all_data <- load_data(infile)
 beep_data <- all_data[[1]][[1]]
 #beep_data <- beep_data[beep_data$Time > as.POSIXct("2020-08-10"),]
 
-#nodes <- node_file(all_data[[2]][[1]])
+nodes <- node_file(all_data[[2]][[1]])
 ###looking for a file with the column names NodeId, lat, lng IN THAT ORDER
-nodes <- read.csv("/Users/edlan/OneDrive/Desktop/data_tools/nodes.csv", as.is=TRUE, na.strings=c("NA", ""), strip.white=TRUE) #uppercase node letters
+nodes <- read.csv("/Users/edlan/OneDrive/Desktop/data_tools/nodes60421.csv", as.is=TRUE, na.strings=c("NA", ""), strip.white=TRUE) #uppercase node letters
 nodes <- nodes[,c("NodeId", "lat", "lng")]
 nodes$NodeId <- toupper(nodes$NodeId)
 
-beep_data <- beep_data[beep_data$NodeId %in% nodes$NodeId,] #c("326317", "326584", "3282fa", "3285ae", "3288f4")
+beep_data <- beep_data[beep_data$NodeId %in% c("326331", "328452", "325D5F", "32B849", "3288C1", "326182","328F95", "329199","328D01","367E6A","363778","328CF4","328EFE","33CD31","36886D","365972","32B849","3288D8","368405","368851", "3645AA","365217","36563F","36885E","364BBD"),] 
 
 ###UNCOMMENT THESE AND FILL WITH YOUR DESIRED VALUES IF YOU WANT YOUR OUTPUT AS ONLY A SUBSET OF THE DATA
 #channel <- a vector of RadioId value(s)
@@ -32,7 +32,7 @@ beep_data <- beep_data[beep_data$NodeId %in% nodes$NodeId,] #c("326317", "326584
 #freq <- The interval of the added datetime variable. Any character string that would be accepted by seq.Date or seq.POSIXt
 
 #EXAMPLE POSSIBLE VALUES
-tag_id <- c("1E342D1E","2A2A522D")
+tag_id <- tags$TagId#c("1E342D1E","2A2A522D")
 #
 #channel <- c(2)
 freq <- c("5 min")
@@ -54,13 +54,15 @@ locations <- weighted_average(freq[1], beep_data, nodes, all_data[[2]][[1]], 0, 
 ###Example 2: Triangulation###
 #calibration data frame needs column names: pt, session_id, start, end, TagId, TagLat, TagLng
 #start and end need to be in UTC
-calibration <- read.csv("your file")
+calibration <- read.csv("/Users/edlan/OneDrive/Desktop/data_tools/calibration.csv")
 calibration$start <- as.POSIXct(tags$start, tz="UTC")
-calibration $end <- as.POSIXct(tags$end, tz="UTC")
+calibration$end <- as.POSIXct(tags$end, tz="UTC")
+calibration$TagId<-gsub(pattern = "_",x = calibration$TagId,replacement  = "")
 calibrated <- calibrate(beep_data, calibration, nodes, calibrate = TRUE)
 all_data <- calibrated[[1]]
 relation <- relate(calibrated[[2]], calibrated[[3]], calibrated[[4]])
 out <- triangulate(all_data, distance = relation)
+write.csv(out,"/Users/edlan/OneDrive/Desktop/data_tools/output/Calibration259.csv")
 ##############################
 
 
