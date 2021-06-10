@@ -357,7 +357,7 @@ calibrate <- function(beep_data, calibration, nodes, calibrate = TRUE, freq = "3
   all_data <- data.frame(TagId = test$TagId, NodeId = test$NodeId, long = test$node_lng_min, lat = test$node_lat_min, avg.RSSI = test$TagRSSI_mean, Test.Group = paste(test$TagId, test$freq))
   return(list(all_data, a, S, K))}
 
-triangulate <- function(all_data, rssi = -100, node = 3, distance = relation) {
+triangulate <- function(all_data, rssi = -106, node = 4, distance = relation) {
   test.g90.dat <- all_data[all_data$avg.RSSI > rssi,]
   sample.size <- test.g90.dat %>%
     dplyr::group_by(Test.Group) %>%
